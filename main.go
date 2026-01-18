@@ -7,6 +7,7 @@
 // Allowed file format:
 //   # This is a comment
 //   10.0.0.1
+//   192.168.1.0/24
 //   192.168.1.0
 //   example.com
 
@@ -53,6 +54,18 @@ func isValidIPv4(s string) bool {
 		if len(part) > 1 && part[0] == '0' {
 			return false
 		}
+	}
+	return true
+}
+
+// isValidIPv4CIDR checks if the string is a valid IPv4 CIDR notation
+func isValidIPv4CIDR(s string) bool {
+	if !strings.Contains(s, "/") {
+		return false
+	}
+	_, ipnet, err := net.ParseCIDR(s)
+	if err != nil || ipnet.IP.To4() == nil {
+		return false
 	}
 	return true
 }
@@ -161,6 +174,8 @@ func main() {
 		}
 
 		if isValidIPv4(line) {
+			allIPs = append(allIPs, line)
+		} else if isValidIPv4CIDR(line) {
 			allIPs = append(allIPs, line)
 		} else if isValidHostname(line) {
 			// Resolve hostname
